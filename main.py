@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
+from typing import List
+
+from coffee_central import Simulator, Point
 
 MIN_GRID_SIZE = 1
 MAX_GRID_SIZE = 1000
@@ -17,6 +20,8 @@ QUERY_COUNT_BOUNDS = f'[{MIN_QUERY_COUNT} .. {MAX_QUERY_COUNT}]'
 MIN_WALK_DISTANCE = 0
 MAX_WALK_DISTANCE = 106
 WALK_DISTANCE_BOUNDS = f'[{MIN_WALK_DISTANCE} .. {MAX_WALK_DISTANCE}]'
+
+POSITION_OUTPUT_OFFSET = Point(1, 1)
 
 EXIT_FAIL = 1
 
@@ -43,7 +48,7 @@ def main(argv):
         if dx == dy == shop_count == query_count == 0:
             break
 
-        print('Case Number', case_number)
+        print(f'Case {case_number}:')
 
         if not(MIN_GRID_SIZE <= dx <= MAX_GRID_SIZE
                and MIN_GRID_SIZE <= dy <= MAX_GRID_SIZE):
@@ -61,7 +66,7 @@ def main(argv):
                   QUERY_COUNT_BOUNDS)
             return EXIT_FAIL
 
-        shops = []
+        shops: List[Point] = []
         for i in range(shop_count):
             l = f.readline()
             if l is None:
@@ -79,9 +84,9 @@ def main(argv):
                 print(f'Shop coordinates ({shop_x}, {shop_y}) are outside of',
                       'the city bounds or in the wrong order')
                 return EXIT_FAIL
-            shops.append((shop_x, shop_y))
+            shops.append(Point(shop_x - 1, shop_y - 1))
 
-        queries = []
+        queries: List[int] = []
         for i in range(query_count):
             l = f.readline()
             if l is None:
@@ -100,8 +105,10 @@ def main(argv):
                 return EXIT_FAIL
             queries.append(query)
 
-        print(f'Grid: {dx}x{dy}', 'shops:', shops, 'queries:', queries)
-        # TODO Calculate optimal location for each query
+        s = Simulator(dx, dy, shops, queries)
+        best_locations = s.run()
+        for l in best_locations:
+            print(l.shop_count, l.position+POSITION_OUTPUT_OFFSET)
         case_number += 1
 
 
